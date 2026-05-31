@@ -7,7 +7,7 @@
 ## Project Overview
 Designed and deployed an event-driven automation pipeline that reduces signal noise via real-time LLM-based verification. Orchestrated a multi-stage logic workflow integrating Python-based data simulation with n8n for scalable, automated financial risk assessment and logging.
 
-## 🚀 Quick Project Previews & Components
+## Quick Project Previews & Components
 To inspect the operational and data layers of this pipeline immediately, explore the live core assets mapped out below:
 
 * 🛠️ **[Explore Core Processing Logic](./src/transform.py)** — Inspect the high-precision Python engine engineered with explicit type hints and strict decimal calculation structures.
@@ -34,7 +34,7 @@ The system was validated through a full-scale pipeline execution processing a 24
 * **Algorithmic Risk Management**: Implemented custom JavaScript processors for real-time dynamic position sizing and automated risk-to-reward profiling.
 * **Automated Logging Sink**: Synced validated workflow payloads dynamically to data warehouses and messaging nodes via schema-mapped abstractions.
 
-## 📋 Pipeline Processing Sample
+## Pipeline Processing Sample
 Below is an example of a raw unstructured signal entering the ingest layer, alongside the finalized, high-precision sanitized payload outputted by the risk engine:
 
 ### Incoming Raw Trade Signal Data
