@@ -1,6 +1,6 @@
 # Financial Signal Automation & LLM Filtering Pipeline
 
-![GitHub License](https://img.shields.io/github/license/shanjeev-b-u/financial-automation-pipeline?color=blue)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/shanjeev-b-u/financial-automation-pipeline/lint-test.yml?branch=main&label=CI%2fCD%20Build)
 ![Python Version](https://img.shields.io/badge/python-3.11-green?logo=python&logoColor=white)
 
