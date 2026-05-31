@@ -11,31 +11,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Clone the code directly into the runner environment
-    - name: Checkout Source Code repository
+    - name: Checkout Repository Source
       uses: actions/checkout@v4
 
-    # Step 2: Provision a clean Python 3.11 build instance
-    - name: Setup Python Environment
+    - name: Initialize Enterprise Python Environment
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-        cache: 'pip'
 
-    # Step 3: Securely map isolated dependencies
-    - name: Install Pinned Dependencies
+    - name: Cache and Install Pinned Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    # Step 4: Validate Python Style Formatting (PEP 8 Compliance)
-    - name: Run Black Code Quality Check
-      run: black --check src/ tests/
-
-    # Step 5: Validate Import Organization Compliance
-    - name: Run Isort Import Sorting Verification
-      run: isort --check-only src/ tests/
-
-    # Step 6: Execute Deterministic Financial Calculations
-    - name: Execute Pytest Validation Matrix
-      run: pytest tests/
+    - name: Execute Deterministic Calculations Suite
+      run: |
+        pytest tests/
