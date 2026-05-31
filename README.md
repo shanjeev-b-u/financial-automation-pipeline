@@ -6,12 +6,12 @@ Designed and deployed an event-driven automation pipeline that reduces signal no
 ## System Architecture
 Below is the decoupled microservice design showcasing how events flow linearly through automated retry boundaries to preserve system reliability if downstream nodes face latency or rate limits:
 
-![System Architecture Sketch](./Event-driven microservices architecture diagram.jpg)
+![System Architecture Sketch](./Event-driven%20microservices%20architecture%20diagram.jpg)
 
 ## Production Execution Proof
 The system was validated through a full-scale pipeline execution processing a 240-trade historical ledger to evaluate the noise-reduction layer:
 
-![n8n Metric Execution Proof](./n8n OutputExecution Screenshot.jpg)
+![n8n Metric Execution Proof](./n8n%20OutputExecution%20Screenshot.png)
 
 ### Core Performance Metrics Captured
 * **Quant-Only Baseline Error Rate**: 55%
