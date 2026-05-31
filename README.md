@@ -6,7 +6,7 @@ Designed and deployed an event-driven automation pipeline that reduces signal no
 ## System Architecture
 Below is the decoupled microservice design showcasing how events flow linearly through automated retry boundaries to preserve system reliability if downstream nodes face latency or rate limits:
 
-![System Architecture Sketch](./Event-driven%20microservices%20architecture%20diagram.jpg)
+![System Architecture Sketch](Event-driven%20microservices%20architecture%20diagram.jpg)
 
 ## Production Execution Proof
 The system was validated through a full-scale pipeline execution processing a 240-trade historical ledger to evaluate the noise-reduction layer:
