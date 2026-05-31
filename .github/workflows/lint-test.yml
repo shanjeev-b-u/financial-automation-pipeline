@@ -19,7 +19,7 @@ jobs:
     - name: Setup Python Environment
       uses: actions/setup-python@v5
       with:
-        python-node: '3.11'
+        python-version: '3.11'
         cache: 'pip'
 
     # Step 3: Securely map isolated dependencies
