@@ -1,7 +1,18 @@
 # Financial Signal Automation & LLM Filtering Pipeline
 
+![GitHub License](https://img.shields.io/github/license/shanjeev-b-u/financial-automation-pipeline?color=blue)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/shanjeev-b-u/financial-automation-pipeline/lint-test.yml?branch=main&label=CI%2fCD%20Build)
+![Python Version](https://img.shields.io/badge/python-3.11-green?logo=python&logoColor=white)
+
 ## Project Overview
 Designed and deployed an event-driven automation pipeline that reduces signal noise via real-time LLM-based verification. Orchestrated a multi-stage logic workflow integrating Python-based data simulation with n8n for scalable, automated financial risk assessment and logging.
+
+## 🚀 Quick Project Previews & Components
+To inspect the operational and data layers of this pipeline immediately, explore the live core assets mapped out below:
+
+* 🛠️ **[Explore Core Processing Logic](./src/transform.py)** — Inspect the high-precision Python engine engineered with explicit type hints and strict decimal calculation structures.
+* 🧪 **[Review Automated Test Suites](./tests/test_transform.py)** — Inspect the deterministic test coverage validated automatically via continuous integration.
+* 📐 **[Review System Architecture Map](#system-architecture)** — Jump straight to the fully diagrammed event boundaries and failure mitigation topology.
 
 ## System Architecture
 Below is the decoupled microservice design showcasing how events flow linearly through automated retry boundaries to preserve system reliability if downstream nodes face latency or rate limits:
@@ -22,3 +33,15 @@ The system was validated through a full-scale pipeline execution processing a 24
 * **Decoupled Microservices**: Built a multi-stage workflow utilizing automated retry patterns to handle external API rate limits and network latency gracefully.
 * **Algorithmic Risk Management**: Implemented custom JavaScript processors for real-time dynamic position sizing and automated risk-to-reward profiling.
 * **Automated Logging Sink**: Synced validated workflow payloads dynamically to data warehouses and messaging nodes via schema-mapped abstractions.
+
+## 📋 Pipeline Processing Sample
+Below is an example of a raw unstructured signal entering the ingest layer, alongside the finalized, high-precision sanitized payload outputted by the risk engine:
+
+### Incoming Raw Trade Signal Data
+```json
+{
+  "signal_id": "SIG-9982X",
+  "Entry Price": "100.05",
+  "Quantity": "10",
+  "Source": "Telegram Alpha Channel Stream"
+}
