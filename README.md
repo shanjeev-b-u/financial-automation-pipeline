@@ -14,6 +14,21 @@ To inspect the operational and data layers of this pipeline immediately, explore
 * 🧪 **[Review Automated Test Suites](./tests/test_transform.py)** — Inspect the deterministic test coverage validated automatically via continuous integration.
 * 📐 **[Review System Architecture Map](#system-architecture)** — Jump straight to the fully diagrammed event boundaries and failure mitigation topology.
 
+## Getting Started & Setup Instructions
+
+### Prerequisites
+* Python 3.11+ installed locally
+* Docker Desktop (Optional, for containerized execution)
+
+### Local Installation
+1. Clone the repository to your local workspace:
+   ```bash
+   git clone [https://github.com/shanjeev-b-u/financial-automation-pipeline.git](https://github.com/shanjeev-b-u/financial-automation-pipeline.git)
+   cd financial-automation-pipeline
+   cp .env.example .env
+   pip install -r requirements.txt
+   python src/transform.py
+
 ## System Architecture
 Below is the decoupled microservice design showcasing how events flow linearly through automated retry boundaries to preserve system reliability if downstream nodes face latency or rate limits:
 
