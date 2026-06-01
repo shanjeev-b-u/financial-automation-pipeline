@@ -1,5 +1,5 @@
 import pytest
-from decimal import Decimal
+
 
 @pytest.fixture
 def base_valid_signal():
@@ -10,6 +10,7 @@ def base_valid_signal():
         "Quantity": "10",
         "Source": "Telegram Alpha Channel Stream"
     }
+
 
 @pytest.fixture
 def zero_value_signal():
