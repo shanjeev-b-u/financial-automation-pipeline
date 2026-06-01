@@ -23,7 +23,7 @@ To inspect the operational and data layers of this pipeline immediately, explore
 ### Local Installation
 1. Clone the repository to your local workspace:
    ```bash
-   git clone [https://github.com/shanjeev-b-u/financial-automation-pipeline.git](https://github.com/shanjeev-b-u/financial-automation-pipeline.git)
+   git clone https://github.com/shanjeev-b-u/financial-automation-pipeline.git
    cd financial-automation-pipeline
    cp .env.example .env
    pip install -r requirements.txt
