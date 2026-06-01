@@ -2,28 +2,36 @@ name: MNC Development & Code Quality Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
   development-audit:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository Source
+    - name: Check out repository source code
       uses: actions/checkout@v4
 
-    - name: Initialize Enterprise Python Environment
+    - name: Set up Python environment environment
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: "3.11"
 
-    - name: Cache and Install Pinned Dependencies
+    - name: Install pinned project dependencies
       run: |
         python -m pip install --upgrade pip
+        pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: Execute Deterministic Calculations Suite
+    - name: Run code quality lint inspection
       run: |
-        pytest tests/
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all style warnings as advice, preventing unnecessary pipeline blocking
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Execute comprehensive unit test coverage suite
+      run: |
+        pytest -v
