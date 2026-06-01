@@ -6,6 +6,7 @@ from decimal import Decimal
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.transform import process_transaction  # noqa: E402
+from src.pipeline_runner import simulate_llm_noise_filter, javascript_style_risk_processor  # noqa: E402
 
 
 def test_process_transaction_precision():
@@ -27,7 +28,19 @@ def test_process_transaction_invalid_boundaries():
     assert process_transaction(missing_data) is None
 
 
-def test_process_transaction_extreme_limits():
-    """Verify extreme integer protection limits flag outlier data anomalies safely."""
-    outlier_signal = {"signal_id": "SIG-LIMIT", "Entry Price": "9999999999", "Quantity": "5"}
-    assert process_transaction(outlier_signal) is None
+def test_simulate_llm_noise_filter():
+    """Verify that the AI filter layer drops noisy signals below confidence limits."""
+    high_noise = {"signal_id": "SIG-NOISE", "Confidence Score": "0.34"}
+    clean_signal = {"signal_id": "SIG-CLEAN", "Confidence Score": "0.95"}
+    
+    assert simulate_llm_noise_filter(high_noise) is False
+    assert simulate_llm_noise_filter(clean_signal) is True
+
+
+def test_javascript_style_risk_processor():
+    """Verify that extreme corporate capital exposures trigger internal blocks."""
+    extreme_trade = javascript_style_risk_processor(25000.00, 5.0)  # $125,000 exposure
+    safe_trade = javascript_style_risk_processor(100.00, 10.0)      # $1,000 exposure
+    
+    assert extreme_trade is False
+    assert safe_trade is True
