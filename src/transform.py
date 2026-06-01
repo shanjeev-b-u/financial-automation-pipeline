@@ -21,7 +21,7 @@ def process_transaction(record: Dict[str, Any]) -> Optional[Decimal]:
 
     # Step 1: Structural verification checks
     if not validate_signal_payload(record):
-        logger.error(f"Transaction rejected: Payload payload validation failed for {signal_id}")
+        logger.error(f"Transaction rejected: Payload validation failed for {signal_id}")
         return None
 
     try:
