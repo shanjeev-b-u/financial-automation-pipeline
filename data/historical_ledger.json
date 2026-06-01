@@ -1,0 +1,37 @@
+[
+  {
+    "signal_id": "SIG-001",
+    "Entry Price": "150.25",
+    "Quantity": "10",
+    "Source": "Telegram Alpha Channel Stream",
+    "Confidence Score": "0.88"
+  },
+  {
+    "signal_id": "SIG-002",
+    "Entry Price": "99.50",
+    "Quantity": "50",
+    "Source": "Discord Main Feed",
+    "Confidence Score": "0.45"
+  },
+  {
+    "signal_id": "SIG-003",
+    "Entry Price": "-20.00",
+    "Quantity": "15",
+    "Source": "Telegram Alpha Channel Stream",
+    "Confidence Score": "0.92"
+  },
+  {
+    "signal_id": "SIG-004",
+    "Entry Price": "3200.00",
+    "Quantity": "2",
+    "Source": "Web Scraped RSS",
+    "Confidence Score": "0.31"
+  },
+  {
+    "signal_id": "SIG-005",
+    "Entry Price": "INVALID_PRICE",
+    "Quantity": "100",
+    "Source": "Telegram Alpha Channel Stream",
+    "Confidence Score": "0.75"
+  }
+]
