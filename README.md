@@ -30,6 +30,9 @@ To inspect the operational and data layers of this pipeline immediately, explore
    python src/transform.py
 
 ## System Architecture
+## Development Lifecycle & Sprint Context
+This repository was developed during a dedicated, high-density 48-hour engineering sprint (May 31 – June 1, 2026). The objective of this compressed timeline was to simulate a high-pressure production hotfix environment: rapidly taking an unvalidated legacy utility script, establishing robust enterprise CI/CD verification guardrails, engineering a schema validation layer from scratch, and containerizing the runtime engine under a strict delivery deadline.
+
 Below is the decoupled microservice design showcasing how events flow linearly through automated retry boundaries to preserve system reliability if downstream nodes face latency or rate limits:
 
 <img src="https://github.com/shanjeev-b-u/financial-automation-pipeline/blob/main/Event-driven%20microservices%20architecture%20diagram.png?raw=true" alt="System Architecture Sketch" width="100%">
