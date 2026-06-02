@@ -1,0 +1,183 @@
+{
+  "name": "Workflow 4 (Order Execution)",
+  "nodes": [
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "=📉 PAPER TRADE - SELL SUMMARY\n\n🔹 Stock: {{ $json.Ticker }}\n🔹 Exit Price: Rs. {{ $json.ExitPrice || $json.exit_price }}\n🔹 Total Return: Rs. {{ $json.net_profit_loss || $json.net_pl }}\n\n⚙️ Transaction Charges: Rs. {{ $json.charges }}\n📝 Status: Position Closed Successfully",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        352
+      ],
+      "id": "396014ab-b0d0-48ce-8bb4-8f6f63003940",
+      "name": "Send Telegram Buy Alert"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "sendTo": "={{ $env.NOTIFICATION_EMAIL }}",
+        "subject": "=🚨 BUY SIGNAL — {{ $json.Ticker }} @ Rs. {{ $json.Price }}",
+        "emailType": "text",
+        "message": "=📊 PAPER TRADE - BUY SIGNAL  🔹 Stock: {{ $json.Ticker }} 🔹 Entry Price: Rs. {{ $json.Price }} 🔹 Quantity: {{ $json.quantity }} shares 🔹 Capital Needed: Rs. {{ $json.capital_needed }}  🎯 Target: Rs. {{ $json.target }} 🛡️ Stop-Loss: Rs. {{ $json.stop_loss }} ⚖️ Risk-to-Reward: 1:{{ $json.rr_ratio }}  🧠 Confidence: {{ $json.confidence }} 📝 Time: {{ $now.toLocaleString() }}  ⚠️ NOTE: This is paper trading — do not place real order yet.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        688,
+        192
+      ],
+      "id": "0aba42e2-0ca2-4339-96f8-8ca3fd791a62",
+      "name": "Email Backup Log",
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        896,
+        352
+      ],
+      "id": "ec8f4140-50ef-4b28-a51b-214863cb50d7",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pulls metrics from your manual exit entries\nconst entry_price = parseFloat($json.entry_price) || 0;\nconst exit_price = parseFloat($json.exit_price) || 0;\nconst quantity = parseInt($json.quantity) || 0;\n\nconst buy_value  = entry_price * quantity;\nconst sell_value = exit_price * quantity;\nconst gross_profit = sell_value - buy_value;\n\n// Exact Indian equity intraday transaction fee structures\nconst brokerage = Math.min(20, buy_value * 0.0003) * 2; // Buy + Sell cap\nconst stt       = sell_value * 0.00025;                 // Intraday STT\nconst gst       = brokerage * 0.18;                     // 18% GST on brokerage\nconst exchange  = (buy_value + sell_value) * 0.0000345;  // NSE txn charge\nconst sebi      = (buy_value + sell_value) * 0.000001;   // SEBI turnover tax\nconst stamp     = buy_value * 0.00015;                  // Stamp duty\n\nconst total_charges = brokerage + stt + gst + exchange + sebi + stamp;\nconst net_profit = gross_profit - total_charges;\nconst return_pct = buy_value > 0 ? (Math.round((net_profit / buy_value) * 10000) / 100) : 0;\n\nreturn [{ json: {\n  ...$json,\n  buy_value: Math.round(buy_value),\n  sell_value: Math.round(sell_value),\n  gross_profit: Math.round(gross_profit * 100) / 100,\n  brokerage: Math.round(brokerage * 100) / 100,\n  stt: Math.round(stt * 100) / 100,\n  gst: Math.round(gst * 100) / 100,\n  exchange: Math.round(exchange * 100) / 100,\n  sebi: Math.round(sebi * 100) / 100,\n  stamp: Math.round(stamp * 100) / 100,\n  total_charges: Math.round(total_charges * 100) / 100,\n  net_profit: Math.round(net_profit * 100) / 100,\n  return_pct: return_pct\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        352
+      ],
+      "id": "32eb819c-1cf3-4923-a8fc-d421f7d921bd",
+      "name": "Charges Calculator Engine"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "=📉 PAPER TRADE - SELL SUMMARY  🔹 Stock: {{ $json.stock }} 🔹 Exit Price: Rs. {{ $json.exit_price }} ⏳ Hold Time: {{ $json.hold_duration }}  📊 --- Return Breakdown ---   ▫️ Buy Value:     Rs. {{ $json.buy_value }}   ▫️ Sell Value:    Rs. {{ $json.sell_value }}   ▫️ Gross Profit:  Rs. {{ $json.gross_profit }}  💸 --- Charges Deducted ---   ▫️ Brokerage:     Rs. {{ $json.brokerage }}   ▫️ STT:           Rs. {{ $json.stt }}   ▫️ GST:           Rs. {{ $json.gst }}   ▫️ Exchange Fee:  Rs. {{ $json.exchange }}   ▫️ SEBI Turnover: Rs. {{ $json.sebi }}   ▫️ Stamp Duty:    Rs. {{ $json.stamp }}   ▫️ Total Taxes:   Rs. {{ $json.total_charges }}  🏆 --- Net Result --- 🔥 Net Profit: Rs. {{ $json.net_profit }} ({{ $json.return_pct }}%)",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1312,
+        352
+      ],
+      "id": "c33701b9-6daf-482f-afa6-f5b23b3dbcbe",
+      "name": "Send Telegram Sell Alert"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "Workflow 4 (Order Execution)",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        272,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "YOUR_SUB_WORKFLOW_LOGGER_ID_HERE",
+          "mode": "list"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1520,
+        352
+      ],
+      "id": "5d728168-1fd2-48b4-97d3-c1c35cd0b92a",
+      "name": "Workflow 5 (Trade Logger)",
+      "retryOnFail": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Send Telegram Buy Alert": {
+      "main": [
+        []
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Charges Calculator Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Charges Calculator Engine": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Sell Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Telegram Sell Alert": {
+      "main": [
+        [
+          {
+            "node": "Workflow 5 (Trade Logger)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow 4 (Order Execution)": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Buy Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": ""
+  },
+  "id": "",
+  "tags": []
+}
