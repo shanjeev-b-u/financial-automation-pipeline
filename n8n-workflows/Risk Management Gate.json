@@ -1,0 +1,617 @@
+{
+  "name": "Workflow 1 (Market Data Fetcher)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "373edb89-cae2-4a02-b63c-da538603a2f9",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bc1ef2c9-f539-45c3-be50-643f2c114a06",
+              "leftValue": "={{ new Date().toLocaleString('en-US', {timeZone:'Asia/Kolkata', hour:'numeric', hour12:false}) }}",
+              "rightValue": 9,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "111c5cac-7ad2-4fd4-ac52-2ef3ae3689bd",
+              "leftValue": "={{ new Date().toLocaleString('en-US', {timeZone:'Asia/Kolkata', hour:'numeric', hour12:false}) }}",
+              "rightValue": 16,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        192,
+        144
+      ],
+      "id": "51d5e75b-821a-4a5c-987a-fce95e0f9481",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        496,
+        400
+      ],
+      "id": "5a22761a-0a73-4807-9ae5-6fc6b8585c06",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        704,
+        -192
+      ],
+      "id": "baf98f8a-c927-4f72-b5ab-694ad2af2045",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = [];\n\nfor (const item of $input.all()) {\n  const chart = item.json.chart.result[0];\n  const closes = chart.indicators.quote[0].close.filter(Boolean);\n  const volumes = chart.indicators.quote[0].volume.filter(Boolean);\n  const meta = chart.meta;\n\n  // RSI calculation (14-period)\n  const period = 14;\n  let gains = 0, losses = 0;\n  for (let i = closes.length - period; i < closes.length; i++) {\n    const diff = closes[i] - closes[i - 1];\n    if (diff > 0) gains += diff; else losses += Math.abs(diff);\n  }\n  const rs = (gains / period) / (losses / period);\n  const rsi = Math.round((100 - (100 / (1 + rs))) * 10) / 10;\n\n  // Volume ratio\n  const recentVol = volumes[volumes.length - 1];\n  const avgVol = volumes.slice(-20).reduce((a,b) => a+b, 0) / 20;\n  const volume_ratio = Math.round((recentVol / avgVol) * 10) / 10;\n\n  result.push({ json: {\n    timestamp: new Date().toISOString(),\n    stock: meta.symbol,\n    price: meta.regularMarketPrice,\n    rsi: rsi,\n    volume_ratio: volume_ratio\n  }});\n}\n\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        864,
+        -160
+      ],
+      "id": "c8f58678-e0aa-420a-8094-1ef2d0ce1245",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "url": "https://query1.finance.yahoo.com/v8/finance/chart/RELIANCE.NS?interval=5m&range=1d",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        496,
+        -192
+      ],
+      "id": "6f2e0d9e-334c-446a-b677-4dcbf9b9c355",
+      "name": "RELIANCE NS"
+    },
+    {
+      "parameters": {
+        "url": "https://query1.finance.yahoo.com/v8/finance/chart/INFY.NS?interval=5m&range=1d",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        496,
+        -32
+      ],
+      "id": "fedf1140-d04d-48c4-9cbb-bbd20d7b3676",
+      "name": "INFY NS"
+    },
+    {
+      "parameters": {
+        "url": "https://query1.finance.yahoo.com/v8/finance/chart/TCS.NS?interval=5m&range=1d",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        496,
+        144
+      ],
+      "id": "03d961a3-00d7-4001-ab9a-19b0e1779e1a",
+      "name": "TCS NS"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID_HERE",
+          "mode": "list"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Stock": "={{ $json.stock }}",
+            "Price": "={{ $json.price }}",
+            "RSI": "={{ $json.rsi }}",
+            "Volume Ratio": "={{ $json.volume_ratio }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stock",
+              "displayName": "Stock",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Price",
+              "displayName": "Price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "RSI",
+              "displayName": "RSI",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "MACD",
+              "displayName": "MACD",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Volume Ratio",
+              "displayName": "Volume Ratio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1072,
+        -160
+      ],
+      "id": "4a077730-9822-4e83-b085-2cd877294554",
+      "name": "Market Data"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "RELIANCE NS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "INFY NS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "TCS NS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Market Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RELIANCE NS": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "INFY NS": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "TCS NS": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": ""
+  },
+  "id": "",
+  "tags": []
+}
+
+{
+  "name": "Workflow 3 (Risk Management Gate)",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        272,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Read all incoming items from the scanner list cleanly\nconst inputItems = $input.all();\n\n// Loop through each item to calculate position size and risk rules\nreturn inputItems.map(item => {\n    const itemData = item.json;\n\n    // Extract raw values with fallbacks for both sheet formats and AI models\n    const entry = parseFloat(itemData.Price) || parseFloat(itemData.price) || 0;\n    const stockTicker = itemData.Ticker || itemData.stock || \"UNKNOWN\";\n    const aiConfidence = itemData.confidence || \"Medium\";\n\n    // Core Capital Risk Settings\n    const capital = 100000;      // Your total capital in rupees\n    const risk_pct = 0.02;       // 2% maximum risk per trade\n\n    // Financial calculations\n    const risk_amount = capital * risk_pct;\n    const stop_loss = entry * 0.97; // Stop loss set at 3% below entry\n    const risk_per_share = entry - stop_loss;\n\n    // Calculate exact whole share quantities safely\n    const quantity = risk_per_share > 0 ? Math.floor(risk_amount / risk_per_share) : 0;\n    const target = entry + (risk_per_share * 2); // 1:2 Risk-to-Reward ratio\n    const capital_needed = entry * quantity;\n\n    return {\n        json: {\n            ...itemData,\n            Ticker: stockTicker,\n            Price: entry,\n            confidence: aiConfidence,\n            quantity: quantity,\n            target: Math.round(target * 100) / 100,\n            stop_loss: Math.round(stop_loss * 100) / 100,\n            capital_needed: Math.round(capital_needed),\n            risk_amount: Math.round(risk_amount),\n            rr_ratio: 2\n        }\n    };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        352
+      ],
+      "id": "c43c9e7f-35bc-4d6f-85c4-c084d0dae834",
+      "name": "Position Sizing Calculator"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "96a0300b-db33-495b-b977-4aba31880c19",
+              "leftValue": "={{ ($json.target - $json.Price) >= (($json.Price - $json.stop_loss) * 2) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        688,
+        352
+      ],
+      "id": "9389120e-c40e-49ed-9e86-0df48c6a0e1f",
+      "name": "R:R Ratio Check"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_TRADE_LOG_SPREADSHEET_ID_HERE",
+          "mode": "list"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        896,
+        256
+      ],
+      "id": "7fb72efe-15ab-4c41-bf34-885e2372865d",
+      "name": "Fetch Trade Log"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Grab all incoming rows from the Google Sheet\nconst items = $input.all();\n\n// Process each row one by one safely\nreturn items.map(item => {\n    const itemData = item.json;\n\n    // Read values from your Google Sheet columns safely\n    const entry = parseFloat(itemData[\"Entry Price\"]) || 0;\n    const quantity = parseInt(itemData[\"Quantity\"]) || 0;\n    const stockTicker = itemData[\"Stock\"] || \"UNKNOWN\";\n\n    // Core Calculations\n    const stop_loss = entry * 0.97; // 3% risk protection\n    const risk_per_share = entry - stop_loss;\n    const target = entry + (risk_per_share * 2); // 1:2 Risk-Reward\n    const capital_needed = entry * quantity;\n\n    return {\n        json: {\n            ...itemData,\n            Ticker: stockTicker,\n            Price: entry,\n            quantity: quantity,\n            target: Math.round(target * 100) / 100,\n            stop_loss: Math.round(stop_loss * 100) / 100,\n            capital_needed: Math.round(capital_needed)\n        }\n    };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        256
+      ],
+      "id": "fba85ad8-ead1-41ed-aac2-644a8b027169",
+      "name": "Daily P&L Calculator"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "113c628d-82d6-4da9-a098-ba41ae0269e9",
+              "leftValue": "={{ $json.halt_trading }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1312,
+        256
+      ],
+      "id": "6ac0c96d-4291-423f-b63d-41648a45180e",
+      "name": "Loss Cap Gate"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "YOUR_ORDER_EXECUTION_WORKFLOW_ID_HERE",
+          "mode": "list"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1520,
+        352
+      ],
+      "id": "cf64e2b3-8ed6-4d50-92d3-6b503e0c1489",
+      "name": "Workflow 4 (Order Execution)"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "⚠️ TRADING HALTED — RISK TRIGGERED\n\nThe system detected that your daily cumulative loss limit of ₹5,000 has been reached or breached.\n\n🚫 All further automated scanner entries have been locked down for the day to preserve capital.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1520,
+        160
+      ],
+      "id": "06215941-1397-421b-b714-a2ae7eb92ca0",
+      "name": "Send a text message"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Position Sizing Calculator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Position Sizing Calculator": {
+      "main": [
+        [
+          {
+            "node": "R:R Ratio Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "R:R Ratio Check": {
+      "main": [
+        [
+          {
+            "node": "Fetch Trade Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Trade Log": {
+      "main": [
+        [
+          {
+            "node": "Daily P&L Calculator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily P&L Calculator": {
+      "main": [
+        [
+          {
+            "node": "Loss Cap Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loss Cap Gate": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Workflow 4 (Order Execution)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": ""
+  },
+  "id": "",
+  "tags": []
+}
+
